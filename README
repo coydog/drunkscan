@@ -1,0 +1,20 @@
+Drunkscan
+
+This was my first attempt at TCP sockets programming. It almost didn't
+get written, since nmap pretty much revolutionalized the portscanner,
+and drunkscan doesn't really bring anything new to the table. But I 
+wanted to get some practical experience with sockets, and I couldn't
+think of anything else to write other than a netcat clone.
+
+This was hacked out during a party back in summer of 2000 in Las Vegas, and
+debugged the following morning. At the time, I only tested it on FreeBSD 3.x,
+but it seems to compile and work just fine under NetBSD, OpenBSD, FreeBSD 9,
+and Debian on i386 architecture.  Prior to writing this, I'd been using
+Linux/i386, NetBSD/SPARC32, FreeBSD/i386, and who knows what else to practice
+writing portable code. Apparently those efforts paid off.
+
+I had lost this code for nearly a decade, and finally got it back after
+a year-and-a-half data recovery effort of a corrupt disk image from 
+CHIBA, my old personal Dell Inspiron Pentium II 233Mhz. 
+
+Copyright 2000-2013 Coydog Software. See LICENSE.
