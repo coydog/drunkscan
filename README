@@ -1,5 +1,24 @@
 Drunkscan
 
+INSTALL
+
+To build on POSIX-ish systems, try 
+
+	cc -o drunkscan drunkscan.c
+
+On VMS, something along the lines of
+
+	CC drunkscan
+	LINK drunkscan
+
+should work. The following may be necessary to set up foreign command syntax in
+DCL to allow command-line arguments to be passed:
+
+	DEFINE DCL$PATH DISK$USERS:[USERS.<username>]
+
+
+RATIONALE (aka, why do we need another portscanner?)
+
 This was my first attempt at TCP sockets programming. It almost didn't get
 written, since nmap pretty much revolutionalized the portscanner, and drunkscan
 doesn't really bring anything new to the table. But I wanted to get some
@@ -9,9 +28,10 @@ write other than a netcat clone.
 This was hacked out during a party back in summer of 2000 in Las Vegas, and
 debugged the following morning. At the time, I only tested it on FreeBSD 3.x,
 but it seems to compile and work just fine under NetBSD, OpenBSD, FreeBSD 9,
-and Debian on i386 architecture.  Prior to writing this, I'd been using
-Linux/i386, NetBSD/SPARC32, FreeBSD/i386, and who knows what else to practice
-writing portable code. Apparently those efforts paid off.
+and Debian on i386 architecture, Gentoo on amd64, and VMS on Alpha or Itanium.
+Prior to writing this, I'd been using Linux/i386, NetBSD/SPARC32, FreeBSD/i386,
+and who knows what else to practice writing portable code. Apparently those
+efforts paid off.
 
 I had lost this code for nearly a decade, and finally got it back after a
 year-and-a-half data recovery effort of a corrupt disk image from CHIBA, my old
