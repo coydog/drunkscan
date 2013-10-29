@@ -6,6 +6,10 @@ To build on POSIX-ish systems, try
 
 	cc -o drunkscan drunkscan.c
 
+Solaris with Sun Studio requires the following for linkage:
+
+	cc -o drunkscan drunkscan.c -lresolv -lnsl -lsocket
+
 On VMS, something along the lines of
 
 	CC drunkscan
@@ -15,6 +19,12 @@ should work. The following may be necessary to set up foreign command syntax in
 DCL to allow command-line arguments to be passed:
 
 	DEFINE DCL$PATH DISK$USERS:[USERS.<username>]
+
+
+KNOWN ISSUES:
+
+On Win32, some error-handling issues may exist. Socket errors that shouldn't
+be fatal are.
 
 
 RATIONALE (aka, why do we need another portscanner?)
