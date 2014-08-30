@@ -149,7 +149,7 @@ do_scan(char *ahost, u_short startp, u_short stopp)
       if (serv_struct != NULL)
         printf("%s \t", serv_struct->s_name);
 
-	  /* poll our single descriptor for 1 second. Could maybe be shorter	*/
+			/* poll our single descriptor for 1 second. Could maybe be shorter	*/
       if ( (poll(&stopoll, 1, 1000) > 0) && (stopoll.events == stopoll.revents) )
       {
         memset(buf, 0, BUFFSIZE);
@@ -165,8 +165,8 @@ do_scan(char *ahost, u_short startp, u_short stopp)
     {
       if (errno != ECONNREFUSED)
       {
-		perror("socket error");
-		return -1;	/* indicate failure	*/
+				perror("socket error");
+				return -1;	/* indicate failure	*/
       }
     }
     close(sockfd);
