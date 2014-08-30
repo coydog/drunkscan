@@ -77,6 +77,8 @@ do_scan(char *ahost, u_short startp, u_short stopp)
   struct pollfd stopoll;
   char hn_string[BUFF_HOSTNAME];
   char ip_string[BUFF_ADDR_STR];
+  int timedout = 0; /* errors which we'll warn about the first time */
+  int accessperm = 0;
 
   /* 2013 cleanup - memory initialization. I was long on attitude and short
    * on clue in 2000. I was just learning the ropes of coding; this scanner
@@ -104,7 +106,7 @@ do_scan(char *ahost, u_short startp, u_short stopp)
       strncpy(ip_string, (char *)inet_ntoa(dest_addr.sin_addr), BUFF_ADDR_STR);
     }
   }
-  else		/* string was dot-quad. */
+  else  	/* string was dot-quad. */
   {
     if ( (htoscan = gethostbyaddr(ahost, 4, AF_INET) ) == NULL)
     {
@@ -120,7 +122,7 @@ do_scan(char *ahost, u_short startp, u_short stopp)
   hn_string[BUFF_HOSTNAME-1] = '\0';
   ip_string[BUFF_ADDR_STR-1] = '\0';
   printf("%s\t(%s)\n", hn_string, ip_string);
-  /* at this point we should have an address for sure.		*/
+  /* at this point we should have an address for sure.  */
   memset(&(dest_addr.sin_zero), 0, 8);
   /* Aug 2013 oops, this was looping since maxport+1 wraps to 0 I think. 
    * Check for 0. */
@@ -131,25 +133,25 @@ do_scan(char *ahost, u_short startp, u_short stopp)
       perror("socket() call failed");
       return -1;
     }
-    /* initialise our struct for polling				*/
+    /* initialise our struct for polling */
     stopoll.fd = sockfd;
     stopoll.events = POLLIN;
   
     dest_addr.sin_port = htons(curr_port);
 
     if (!((connect(sockfd, 
-					(struct sockaddr *)&dest_addr,
-					sizeof(struct sockaddr))) 
-				< 0))
+          (struct sockaddr *)&dest_addr,
+          sizeof(struct sockaddr))) 
+        < 0))
     {
-      /* print tha pr0t number.		*/
+      /* print tha pr0t number. */
       serv_struct = getservbyport(htons(curr_port), NULL);
       printf("%d\t", curr_port);
 
       if (serv_struct != NULL)
         printf("%s \t", serv_struct->s_name);
 
-			/* poll our single descriptor for 1 second. Could maybe be shorter	*/
+      /* poll our single descriptor for 1 second. Could maybe be shorter	*/
       if ( (poll(&stopoll, 1, 1000) > 0) && (stopoll.events == stopoll.revents) )
       {
         memset(buf, 0, BUFFSIZE);
@@ -161,12 +163,43 @@ do_scan(char *ahost, u_short startp, u_short stopp)
         printf("\n");
       }
     }
-    else
+    else /* handle connect() failure */
     {
-      if (errno != ECONNREFUSED)
+      switch (errno)
       {
-				perror("socket error");
-				return -1;	/* indicate failure	*/
+        case ECONNREFUSED:
+          break;
+
+        case ETIMEDOUT:
+        case ENETUNREACH:
+          if (!timedout)
+          {
+            timedout = 1;
+            perror("socket error");
+            fprintf(stderr, "Host may be down or firewalled\n");
+            fprintf(stderr, 
+              "I'll try to continue, but this may take a while\n");
+          }
+          break;
+
+        case EACCES:
+        case EPERM:
+          if (!accessperm)
+          {
+            accessperm = 1;
+            perror("socket error");
+            fprintf(stderr,
+              "We might be blocked by a local firewall rule\n");
+            fprintf(stderr, 
+              "I'll try to continue, but this is likely to end in tears.");
+          }
+          break;
+
+        /* TODO: gracefully handle other connect() errors which 
+           might indicate the port is being filtered */
+        default: /* we simply won't tolerate any more errors */
+          perror("socket error");
+          return -1;  /* indicate failure */
       }
     }
     close(sockfd);
